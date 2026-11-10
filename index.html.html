@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест для Ріти 💖</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Comfortaa:wght@400;600;700&family=Marck+Script&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pinky: {
+                            50: '#fff0f5',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        }
+                    },
+                    fontFamily: {
+                        script: ['Marck Script', 'cursive'],
+                        caveat: ['Caveat', 'cursive'],
+                        main: ['Comfortaa', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Comfortaa', sans-serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e8 50%, #ffd6e0 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Background hearts floating animation */
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp linear infinite;
+            opacity: 0.6;
+            color: #fb7185;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.5) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism Romantic Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 3px solid rgba(251, 113, 133, 0.4);
+            box-shadow: 0 15px 35px rgba(244, 63, 94, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Romantic Soft Glowing Buttons */
+        .btn-pink {
+            background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-pink:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(244, 63, 94, 0.5);
+        }
+
+        .btn-pink:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .btn-outline-pink {
+            background: white;
+            color: #f43f5e;
+            border: 2px solid #fda4af;
+            box-shadow: 0 4px 12px rgba(253, 164, 175, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-pink:hover {
+            background: #ffe4e6;
+            border-color: #fb7185;
+            transform: translateY(-2px);
+        }
+
+        /* Keyframe animations for transitions */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .pulse-heart {
+            animation: heartPulse 1.5s infinite;
+        }
+
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.15); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #f43f5e, #fb7185, #e11d48, #f43f5e);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 relative min-h-screen">
+
+    <!-- Container for floating hearts background -->
+    <div id="heartsContainer"></div>
+
+    <!-- Music Control Button -->
+    <button id="musicToggle" onclick="toggleMusic()" class="fixed top-5 right-5 z-50 bg-white/80 backdrop-blur border-2 border-pinky-300 text-pinky-500 rounded-full p-3 shadow-lg hover:scale-110 transition-transform flex items-center gap-2 px-4">
+        <i id="musicIcon" class="fas fa-heart-crack text-pinky-400"></i>
+        <span id="musicText" class="text-xs font-bold text-pinky-600">Музика: вимк</span>
+    </button>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="w-full max-w-lg mx-auto">
+        
+        <!-- STEP 1: WELCOME SCREEN -->
+        <div id="step1" class="glass-card p-8 md:p-10 text-center fade-in">
+            <div class="mb-4 inline-block">
+                <i class="fas fa-heart text-6xl text-pinky-400 pulse-heart"></i>
+            </div>
+            <h1 class="font-script text-6xl md:text-7xl font-bold shimmer-text mb-2">Тест</h1>
+            <p class="font-caveat text-3xl text-pinky-500 mb-8 font-bold">~ чисто для Ріти ~</p>
+            
+            <p class="text-gray-600 mb-8 text-sm md:text-base leading-relaxed">
+                Спєціальний інтерактивний міні-тест, зроблений з любов'ю і нєжностьом 🌸
+            </p>
+
+            <button onclick="goToStep(2)" class="btn-pink w-full py-4 rounded-2xl text-xl font-bold tracking-wider">
+                Погнали <i class="fas fa-sparkles ml-2"></i>
+            </button>
+        </div>
+
+        <!-- STEP 2: WARNING SCREEN -->
+        <div id="step2" class="glass-card p-8 md:p-10 text-center fade-in hidden">
+            <div class="w-20 h-20 bg-pinky-100 rounded-full flex items-center justify-center mx-auto mb-6 text-pinky-500 text-3xl shadow-inner border border-pinky-200">
+                <i class="fas fa-exclamation text-4xl animate-bounce"></i>
+            </div>
+            
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Увага! Предупрєждєніє ✨</h2>
+            
+            <div class="bg-pinky-50 border border-pinky-200 rounded-2xl p-6 mb-8">
+                <p class="text-xl md:text-2xl font-bold text-pinky-600 leading-snug">
+                    Відповідай тільки правильно ❤️
+                </p>
+                <p class="text-xs text-pinky-400 mt-2"> Це саме главне правило цього тесту!</p>
+            </div>
+
+            <button onclick="goToStep(3)" class="btn-pink w-full py-4 rounded-2xl text-lg font-bold">
+                Поняла! 👌
+            </button>
+        </div>
+
+        <!-- STEP 3: QUESTION 1 -->
+        <div id="step3" class="glass-card p-8 md:p-10 text-center fade-in hidden">
+            <div class="text-sm font-bold text-pinky-400 uppercase tracking-widest mb-2">Питання 1 з 3</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">Чи хороший я друг? 🤔</h2>
+
+            <div id="q1Buttons" class="space-y-4">
+                <button onclick="answerQ1()" class="btn-pink w-full py-4 rounded-2xl text-xl font-bold">
+                    Да 🥰
+                </button>
+                <button onclick="answerQ1()" class="btn-pink w-full py-4 rounded-2xl text-xl font-bold">
+                    Да 😇
+                </button>
+            </div>
+
+            <!-- Q1 Response Overlay inside card -->
+            <div id="q1Response" class="hidden mt-6 bg-pinky-50 border-2 border-pinky-300 rounded-2xl p-6 fade-in">
+                <p class="text-2xl font-bold text-pinky-600 mb-4">Мені дуже приємно ) 🌸✨</p>
+                <button onclick="goToStep(4)" class="btn-pink px-8 py-3 rounded-xl font-bold text-sm">
+                    Далі <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: QUESTION 2 (RUNAWAY BUTTON) -->
+        <div id="step4" class="glass-card p-8 md:p-10 text-center fade-in hidden min-h-[420px] flex flex-col justify-between">
+            <div>
+                <div class="text-sm font-bold text-pinky-400 uppercase tracking-widest mb-2">Питання 2 з 3</div>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">Чи хочеш ти піти зі мною гуляти? 🚶‍♀️💨</h2>
+            </div>
+
+            <div id="q2Container" class="relative w-full h-48 flex items-center justify-around">
+                <!-- YES BUTTON -->
+                <button onclick="answerQ2()" class="btn-pink px-8 py-4 rounded-2xl text-xl font-bold z-10 shadow-lg">
+                    Да 💖
+                </button>
+                
+                <!-- RUNAWAY NO BUTTON -->
+                <button id="noBtn" 
+                        onmouseenter="escapeNoBtn()" 
+                        onclick="escapeNoBtn()" 
+                        ontouchstart="escapeNoBtn(event)" 
+                        class="btn-outline-pink px-8 py-4 rounded-2xl text-xl font-bold absolute transition-all duration-200 z-20">
+                    Нет 😜
+                </button>
+            </div>
+
+            <!-- Q2 Response Overlay -->
+            <div id="q2Response" class="hidden bg-pinky-50 border-2 border-pinky-300 rounded-2xl p-6 fade-in mt-4">
+                <p class="text-2xl font-bold text-pinky-600 mb-4">Круто я тоже хочу ) 💗</p>
+                <button onclick="goToStep(5)" class="btn-pink px-8 py-3 rounded-xl font-bold text-sm">
+                    Слєдующе питання <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 5: QUESTION 3 (10 YES, 1 NO SWAPPING) -->
+        <div id="step5" class="glass-card p-6 md:p-8 text-center fade-in hidden">
+            <div class="text-sm font-bold text-pinky-400 uppercase tracking-widest mb-1">Послєднє питання!</div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Про обнімашки 🫂</h2>
+            <p class="text-pinky-500 font-bold mb-6">Чи хочеш ти зі мною обнімашки?</p>
+
+            <!-- Grid of 11 buttons -->
+            <div id="hugsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                <!-- Javascript will populate 10 YES buttons and 1 NO button dynamically -->
+            </div>
+        </div>
+
+        <!-- STEP 6: FINAL SCREEN -->
+        <div id="step6" class="glass-card p-8 md:p-12 text-center fade-in hidden">
+            <div class="mb-4">
+                <span class="inline-block p-4 bg-pinky-100 rounded-full text-pinky-500 text-4xl mb-2 border border-pinky-300">
+                    👑
+                </span>
+            </div>
+            
+            <h2 class="font-caveat text-4xl text-pinky-400 font-bold mb-1">Тест закінчено! ✨</h2>
+            
+            <div class="my-6 py-6 border-y-2 border-pinky-200">
+                <h1 class="font-script text-5xl md:text-6xl font-bold text-pinky-600 shimmer-text">
+                    Петя крутой.
+                </h1>
+            </div>
+
+            <p class="text-gray-600 text-sm md:text-base mb-6">
+                Спасибо за прохождєніє! Гарного дня і крутого настрою! 🌸🎀
+            </p>
+
+            <button onclick="restartTest()" class="btn-outline-pink px-6 py-3 rounded-xl font-bold text-sm">
+                <i class="fas fa-redo ml-1"></i> Пройти ще раз
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. Background Hearts Generator ---
+        function createHearts() {
+            const container = document.getElementById('heartsContainer');
+            const heartIcons = ['💖', '🌸', '✨', '💕', '💗', '🌺'];
+            
+            for (let i = 0; i < 25; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-particle';
+                heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 6 + 6) + 's';
+                heart.style.animationDelay = (Math.random() * 5) + 's';
+                heart.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // --- 2. Navigation Logic ---
+        function goToStep(stepNumber) {
+            // Hide all steps
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`step${i}`);
+                if (el) el.classList.add('hidden');
+            }
+            // Show requested step
+            const target = document.getElementById(`step${stepNumber}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('fade-in');
+            }
+
+            // Trigger sound on start if not already started
+            if (stepNumber === 2 && !musicPlaying) {
+                toggleMusic();
+            }
+
+            // Init question 3 if transitioning to step 5
+            if (stepNumber === 5) {
+                initHugsGrid();
+            }
+        }
+
+        // --- 3. Step 3 (Q1) logic ---
+        function answerQ1() {
+            document.getElementById('q1Buttons').classList.add('hidden');
+            document.getElementById('q1Response').classList.remove('hidden');
+            triggerMiniConfetti();
+        }
+
+        // --- 4. Step 4 (Q2 Runaway No Button) logic ---
+        function escapeNoBtn(e) {
+            if (e) e.preventDefault();
+            const btn = document.getElementById('noBtn');
+            const container = document.getElementById('q2Container');
+            
+            const containerRect = container.getBoundingClientRect();
+            const btnWidth = btn.offsetWidth;
+            const btnHeight = btn.offsetHeight;
+
+            // Calculate safe bounds
+            const maxX = containerRect.width - btnWidth;
+            const maxY = containerRect.height - btnHeight;
+
+            const randomX = Math.floor(Math.random() * Math.max(0, maxX));
+            const randomY = Math.floor(Math.random() * Math.max(0, maxY));
+
+            btn.style.left = `${randomX}px`;
+            btn.style.top = `${randomY}px`;
+        }
+
+        function answerQ2() {
+            document.getElementById('q2Container').classList.add('hidden');
+            document.getElementById('q2Response').classList.remove('hidden');
+            triggerMiniConfetti();
+        }
+
+        // --- 5. Step 5 (Q3 10 Yes / 1 No logic) ---
+        let hugsButtonsState = []; // Array of booleans: true = "Так", false = "Ні"
+
+        function initHugsGrid() {
+            // 11 elements total: 10 'Yes' (true), 1 'No' (false)
+            hugsButtonsState = [true, true, true, true, true, false, true, true, true, true, true];
+            // Shuffle initial array slightly so "No" position is randomized
+            hugsButtonsState.sort(() => Math.random() - 0.5);
+            renderHugsGrid();
+        }
+
+        function renderHugsGrid() {
+            const grid = document.getElementById('hugsGrid');
+            grid.innerHTML = '';
+
+            hugsButtonsState.forEach((isYes, index) => {
+                const btn = document.createElement('button');
+                btn.className = isYes 
+                    ? 'btn-pink py-3 px-2 rounded-xl text-base font-bold shadow' 
+                    : 'btn-outline-pink py-3 px-2 rounded-xl text-base font-bold shadow';
+                btn.innerText = isYes ? 'Да 🤗' : 'Нет 🙈';
+                
+                btn.onclick = () => handleHugsClick(index);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleHugsClick(clickedIndex) {
+            if (hugsButtonsState[clickedIndex] === false) {
+                // User clicked "No" -> swap "No" with a random "Yes" button
+                const yesIndices = [];
+                hugsButtonsState.forEach((val, idx) => {
+                    if (val === true) yesIndices.push(idx);
+                });
+                
+                // Pick random YES button index
+                const randomYesIdx = yesIndices[Math.floor(Math.random() * yesIndices.length)];
+                
+                // Swap values
+                hugsButtonsState[clickedIndex] = true;
+                hugsButtonsState[randomYesIdx] = false;
+                
+                renderHugsGrid();
+            } else {
+                // User clicked "Yes" -> Final celebration & completion
+                triggerGrandConfetti();
+                setTimeout(() => {
+                    goToStep(6);
+                }, 700);
+            }
+        }
+
+        // --- 6. Confetti Effects ---
+        function triggerMiniConfetti() {
+            confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.7 },
+                colors: ['#fb7185', '#fda4af', '#fff0f5']
+            });
+        }
+
+        function triggerGrandConfetti() {
+            const duration = 3 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#f43f5e', '#fb7185', '#ffd6e0']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#f43f5e', '#fb7185', '#ffd6e0']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+        }
+
+        // --- 7. Restart Logic ---
+        function restartTest() {
+            // Reset state
+            document.getElementById('q1Buttons').classList.remove('hidden');
+            document.getElementById('q1Response').classList.add('hidden');
+            
+            document.getElementById('q2Container').classList.remove('hidden');
+            document.getElementById('q2Response').classList.add('hidden');
+            const noBtn = document.getElementById('noBtn');
+            noBtn.style.left = '';
+            noBtn.style.top = '';
+
+            goToStep(1);
+        }
+
+        // --- 8. Web Audio API Romantic Melody Synthesizer ---
+        let audioCtx = null;
+        let musicPlaying = false;
+        let musicInterval = null;
+
+        const melodyNotes = [
+            { note: 261.63, duration: 0.6 }, // C4
+            { note: 329.63, duration: 0.6 }, // E4
+            { note: 392.00, duration: 0.6 }, // G4
+            { note: 440.00, duration: 0.8 }, // A4
+            { note: 392.00, duration: 0.6 }, // G4
+            { note: 329.63, duration: 0.6 }, // E4
+            { note: 349.23, duration: 0.6 }, // F4
+            { note: 440.00, duration: 0.6 }, // A4
+            { note: 523.25, duration: 0.8 }, // C5
+            { note: 493.88, duration: 0.6 }, // B4
+            { note: 440.00, duration: 0.6 }, // A4
+            { note: 392.00, duration: 1.0 }, // G4
+        ];
+
+        let currentNoteIdx = 0;
+
+        function playSoftNote(freq, duration) {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // Soft sine wave sound
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                // Smooth attack and release envelope
+                gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function toggleMusic() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const icon = document.getElementById('musicIcon');
+            const text = document.getElementById('musicText');
+
+            if (musicPlaying) {
+                musicPlaying = false;
+                clearInterval(musicInterval);
+                icon.className = 'fas fa-heart-crack text-pinky-400';
+                text.innerText = 'Музика: вимк';
+            } else {
+                musicPlaying = true;
+                icon.className = 'fas fa-heart text-pinky-500 pulse-heart';
+                text.innerText = 'Музика: увімк';
+
+                // Play loop
+                musicInterval = setInterval(() => {
+                    const item = melodyNotes[currentNoteIdx];
+                    playSoftNote(item.note, item.duration);
+                    currentNoteIdx = (currentNoteIdx + 1) % melodyNotes.length;
+                }, 600);
+            }
+        }
+    </script>
+</body>
+</html>
